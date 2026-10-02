@@ -1,25 +1,28 @@
+---
+last_updated: "2026-10-03"
+---
+
 # Vocal Lesson Management
+
+## READMEの役割
+
+このREADMEは、リポジトリの概念と大まかな運用方針を示すためのものです。
+
+個別ファイルの一覧や、各文書の詳細な内容は管理しません。ファイルの追加・移動のたびにREADMEを更新する必要はありません。
 
 ## リポジトリ構成
 
 ```text
 .
-├── .gitignore
 ├── README.md
+├── .gitignore
 └── docs/
-    ├── design-spec-draft.md
-    └── requirements.md
+    └── uncategorized/
 ```
 
-## リポジトリ規約
+## リポジトリの方針
 
-- 要求は `docs/requirements.md` に記載する。
-- 設計・仕様の候補は `docs/design-spec-draft.md` に記載する。
-- 要求と設計・仕様を同じ文書に混在させない。
-- READMEには、リポジトリ構成とリポジトリ運用上の規約を記載する。
+- 要求、設計・仕様、開発運用などは役割を分けて管理する。
+- 合意済みの内容と未合意の案を区別する。
+- 詳細なルールや判断内容は、それぞれの文書・GitHub Projects・GitHub Issueで管理する。
 - デフォルトブランチは `main` とする。
-
-## ドキュメント
-
-- [要求書](docs/requirements.md)
-- [設計・仕様案（未確定）](docs/design-spec-draft.md)
