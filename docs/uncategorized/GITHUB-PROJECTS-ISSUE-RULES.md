@@ -19,9 +19,93 @@ last_updated: "2026-10-03"
 - 大きな目的は、親GitHub IssueとGitHub sub-issueに分割できる。
 - GitHub Issueには、議論や意思決定に至る経緯を残す。
 
-## 未決定事項
+## GitHub Projectsのフィールド
 
-- GitHub Issue本文とコメントの使い分け。
-- GitHub ProjectsのStatus、GitHub IssueのLabel、GitHub ProjectsのPriorityの具体的な運用。
-- GitHub ProjectsのViewの構成。
-- GitHub Projectsのdraft issueをGitHub Issueへ変換する具体的な基準。
+### Status
+
+Statusは作業の進捗を表す。
+
+- `Todo`
+- `In Progress`
+- `Done`
+
+ブロックや合意待ちはStatusに追加せず、GitHub Issueのコメントなどに記録する。Statusは作業の区切りで更新する。
+
+根拠：Statusの種類を増やすと、進捗と作業上の事情が混ざり、更新の負担も増えるため。
+
+### Priority
+
+PriorityはGitHub Projectsの単一選択フィールドで管理する。
+
+- `High`
+- `Medium`
+- `Low`
+
+既存のProject項目は`Medium`に設定する。新規項目も原則`Medium`とし、必要な場合だけ手動で変更する。Priorityの自動判定や自動設定は行わない。
+
+根拠：優先度はStatusやSprintとは異なる情報であり、手動判断を自動分類で置き換えないため。
+
+### Sprint
+
+SprintはGitHub ProjectsのIterationフィールドで管理する。
+
+- 期間：1週間
+- 範囲：`S001`〜`S005`
+- `S001`の開始日：2026年10月3日
+- Sprintへの割り当て：手動
+- 未完了項目の移動：手動
+
+日付を理由にIssueのSprint割り当てを自動変更しない。
+
+根拠：1週間単位で作業量を調整しつつ、予定外の自動移動による誤った計画変更を避けるため。
+
+## GitHub ProjectsのView
+
+### Backlog
+
+- `Done`以外の項目を表示する。
+- Sprint単位でグループ化する。
+- Sprint未設定の項目も表示する。
+- 表示列は`Parent issue`、`Title`、`Status`、`Priority`、`Updated`とする。
+
+### All
+
+- 完了済みを含む全項目を表示する。
+- 表示列はBacklogと同じにする。
+
+根拠：日々の作業対象と、完了済みを含む全体確認を分けることで、Backlogを簡潔に保つため。
+
+## GitHub IssueのLabel
+
+Labelは必須にしない。
+
+現時点では、GitHubの既定Labelである`bug`だけを運用対象とする。該当するIssueが発生した場合に付ける。現在のIssueには付けない。
+
+根拠：Labelによる分類が必要なIssueだけを対象にし、使わない分類を先に増やさないため。
+
+## GitHub Issueテンプレート
+
+現時点では作成しない。
+
+Issue本文は、タイトル、簡単な説明、必要なリンクなどを必要に応じて記載する。要求書や仕様書が存在する場合は、それらを正とする。
+
+根拠：Issueの種類や必要な記載項目が増えた時点で、実際の運用に合わせて形式を決めるため。
+
+## 自動化
+
+次の標準ワークフローを利用する。
+
+- Project項目が追加されたらStatusを`Todo`にする。
+- GitHub IssueがCloseされたらStatusを`Done`にする。
+
+次の自動化は行わない。
+
+- GitHub Issueの自動追加
+- GitHub sub-issueの自動追加
+- Pull Requestとの自動連動
+- Reopen時のStatus自動変更
+- Priorityの自動設定
+- Issue内容からの自動分類
+- Sprintの自動割り当て・自動移動
+
+根拠：作業の追加や分類を自動化すると、意図しないProject更新や作業計画の変更が起きるため。Close時のDoneだけは、Issueの状態とProjectの進捗を一致させるために利用する。
