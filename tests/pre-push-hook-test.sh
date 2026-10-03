@@ -16,6 +16,14 @@ fail() {
     exit 1
 }
 
+# Gitがフックとして起動できるよう、実行可能モードで登録されていることを確認する。
+test_hook_index_entry=$(git ls-files --stage -- "$hook_path")
+case "$test_hook_index_entry" in
+    "100755 "*) ;;
+    *) fail 'pre-pushフックが実行可能モード（100755）で登録されていません' ;;
+esac
+printf '成功: pre-pushフックが実行可能モード（100755）で登録されている\n'
+
 # Build valid pre-push input so each test can focus on the branch names.
 branch_update() {
     printf 'refs/heads/%s %s refs/heads/%s %s' \
