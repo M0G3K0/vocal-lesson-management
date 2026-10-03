@@ -4,7 +4,7 @@ last_updated: "2026-10-03"
 
 # 開発フロー
 
-重要：この開発フローは未完成です。現在は先んじてブランチ命名規則のみが記載されています。
+重要：この開発フローは未完成です。現在はブランチ命名規則とPull Requestテンプレートの利用方法が記載されています。
 
 ## ブランチ命名規則
 
@@ -55,4 +55,14 @@ git config --local core.hooksPath .githooks
 ```sh
 sh tests/pre-push-hook-test.sh
 ```
+
+## Pull Requestテンプレートの利用
+
+Pull Request本文は、`.github/pull_request_template.md`の項目に沿って作成する。テンプレートは`main`に含まれると、GitHub上で新しくPull Requestを作成するときに本文へ表示される。GitHub CLIで作成する場合は、次のようにテンプレートを指定する。
+
+```sh
+gh pr create --template .github/pull_request_template.md
+```
+
+AIがPull Request本文を作成するときも、このファイルを読み、各項目に沿って内容を記載する。
 
