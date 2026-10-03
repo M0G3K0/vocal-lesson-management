@@ -1,0 +1,96 @@
+#!/bin/sh
+
+# Git for WindowsとUnix系のGitで動かせるよう、POSIX shを使う。
+# 助言用フックの診断出力に失敗しても、pushを止めない。
+trap '' PIPE
+
+doc_path='docs/uncategorized/DEVELOPMENT-FLOW.md'
+# 2行目を「WARNING  」の後に続く本文の位置に揃える。
+indent='         '
+
+if [ -t 2 ] && [ -z "${NO_COLOR:-}" ] && [ "${TERM:-}" != 'dumb' ]; then
+    badge_color=$(printf '\033[30;103m')
+    message_color=$(printf '\033[93m')
+    color_reset=$(printf '\033[0m')
+else
+    badge_color=''
+    message_color=''
+    color_reset=''
+fi
+
+emit_warning() {
+    printf '%sWARNING%s  %s%s%s\n' \
+        "$badge_color" "$color_reset" "$message_color" "$1" "$color_reset" >&2
+}
+
+emit_detail() {
+    printf '%s%s\n' "$indent" "$1" >&2
+}
+
+is_valid_branch_name() {
+    validation_branch_name=$1
+
+    validation_type=${validation_branch_name%%/*}
+    case "$validation_type" in
+        feat|fix|refactor|test|docs|chore) ;;
+        *) return 1 ;;
+    esac
+
+    case "$validation_branch_name" in
+        */*) validation_remainder=${validation_branch_name#*/} ;;
+        *) return 1 ;;
+    esac
+
+    case "$validation_remainder" in
+        VLM-*) validation_issue_and_description=${validation_remainder#VLM-} ;;
+        *) return 1 ;;
+    esac
+
+    case "$validation_issue_and_description" in
+        *-*) ;;
+        *) return 1 ;;
+    esac
+
+    validation_issue_number=${validation_issue_and_description%%-*}
+    validation_description=${validation_issue_and_description#*-}
+
+    case "$validation_issue_number" in
+        ''|*[!0-9]*) return 1 ;;
+    esac
+    case "$validation_issue_number" in
+        *[1-9]*) ;;
+        *) return 1 ;;
+    esac
+    case "$validation_description" in
+        ''|*/*) return 1 ;;
+    esac
+
+    return 0
+}
+
+while IFS=' ' read -r local_ref local_oid remote_ref remote_oid; do
+    [ -n "$local_ref" ] || continue
+
+    case "$local_ref" in
+        # 削除ではpush先のブランチを作成・更新しない。
+        '(delete)') continue ;;
+    esac
+
+    # 命名規則の対象はpush先のブランチ。タグは対象外。
+    case "$remote_ref" in
+        refs/heads/*) branch_name=${remote_ref#refs/heads/} ;;
+        *) continue ;;
+    esac
+
+    [ "$branch_name" = 'main' ] && continue
+
+    if is_valid_branch_name "$branch_name"; then
+        continue
+    fi
+
+    emit_warning "Invalid branch name format: \"$branch_name\"."
+    emit_detail "See $doc_path for the branch naming rules."
+done
+
+# 助言用フックなので、命名警告によってpushを止めない。
+exit 0
