@@ -4,7 +4,7 @@ last_updated: "2026-10-03"
 
 # 開発フロー
 
-重要：この開発フローは未完成です。現在はブランチ命名規則とPull Requestテンプレートの利用方法が記載されています。
+重要：この開発フローは未完成です。現在はブランチ命名規則、Pull Requestタイトル命名規則、Pull Requestテンプレートの利用方法が記載されています。
 
 ## ブランチ命名規則
 
@@ -55,6 +55,26 @@ git config --local core.hooksPath .githooks
 ```sh
 sh tests/pre-push-hook-test.sh
 ```
+
+## Pull Requestタイトル命名規則
+
+Pull Requestタイトルは、通常、対象のGitHub Issueタイトルに合わせ、次の形式にする。
+
+```text
+VLM-<Issue番号> <GitHub Issueのタイトル>
+```
+
+同じGitHub Issueに対する修正など、Issueタイトルと異なる変更内容を示したい場合も、この形式を使う。例えば、Issue 31に対する修正Pull Requestなら次のようにする。
+
+```text
+VLM-31 【fix】CI検査の説明を修正
+```
+
+CIは、タイトルが`VLM-<数字> <空でない説明>`の形式かを検査する。Issue番号が実在するか、説明がGitHub Issueタイトルと一致するかは検査しない。形式に合わない場合はCIを失敗させる。`main`へのマージを止めるには、GitHubのルールセット`main-pr-required`でこのチェックを必須にする。
+
+このCIチェックの名前は`PR title validation`とする。
+
+Pull RequestをSquash mergeしたときのコミットタイトルには、コミット数にかかわらずPull Requestタイトルを使う。
 
 ## Pull Requestテンプレートの利用
 
