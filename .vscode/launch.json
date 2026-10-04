@@ -1,0 +1,14 @@
+{
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Frontend: ng serve",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "preLaunchTask": "Frontend: start",
+      "url": "http://127.0.0.1:4200/",
+      "webRoot": "${workspaceFolder}/frontend"
+    }
+  ]
+}
