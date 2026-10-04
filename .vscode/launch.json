@@ -7,7 +7,8 @@
       "type": "pwa-chrome",
       "request": "launch",
       "preLaunchTask": "Frontend: start",
-      "url": "http://127.0.0.1:4200/"
+      "url": "http://127.0.0.1:4200/",
+      "webRoot": "${workspaceFolder}/frontend"
     }
   ]
 }
