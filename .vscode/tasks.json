@@ -12,11 +12,17 @@
       "isBackground": true,
       "problemMatcher": {
         "owner": "angular",
+        "fileLocation": "absolute",
         "pattern": {
-          "regexp": "^\\s*$"
+          "regexp": "^(.+):(\\d+):(\\d+):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "message": 4
         },
         "background": {
           "activeOnStart": true,
+          "beginsPattern": ".*",
           "endsPattern": "Local:\\s+http://127\\.0\\.0\\.1:4200/"
         }
       }
