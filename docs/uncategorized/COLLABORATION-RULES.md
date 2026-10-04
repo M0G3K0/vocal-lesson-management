@@ -19,7 +19,7 @@ last_updated: "2026-10-03"
 
 ## GitHub Issue
 
-- AIはGitHub Issueを作成・編集・コメント・Close・Reopenしない。
+- AIは、指示されない場合は、GitHub Issueを作成・編集・コメント・Close・Reopenしない。
 - Issueに記載する文面の案はチャットで提示できる。GitHubへの記入はユーザーが行う。
 
 ## ドキュメントとGitHub Projects
