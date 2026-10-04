@@ -1,5 +1,5 @@
 ---
-last_updated: "2026-10-03"
+last_updated: "2026-10-04"
 ---
 
 # AI作業指示
@@ -7,6 +7,8 @@ last_updated: "2026-10-03"
 作業前に [協働ルール](docs/uncategorized/COLLABORATION-RULES.md) を読み、ユーザーの指示と合意した範囲に従う。
 
 Pull Request本文を作成するときは、[開発フロー](docs/uncategorized/DEVELOPMENT-FLOW.md)の「Pull Requestテンプレートの利用」に従う。
+
+GitHub Projectsを読み取り・更新するときは、[GitHub Projects操作ガイド（AI向け）](docs/uncategorized/GITHUB-PROJECTS-AI-OPERATIONS.md)を読み、記載された操作方法とフィールドの扱いに従う。
 
 ## 合意済み動作確認の実行
 
