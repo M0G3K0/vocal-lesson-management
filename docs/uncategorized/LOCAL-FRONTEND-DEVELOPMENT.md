@@ -75,6 +75,27 @@ pnpm --dir frontend install --frozen-lockfile
 
 `--frozen-lockfile`を指定し、`pnpm-lock.yaml`を変更せずに依存関係をインストールする。
 
+## VS Codeから起動する
+
+リポジトリのルートをVS Codeで開く。
+
+実行とデバッグから`Frontend: ng serve`を選ぶと、次の処理が実行される。
+
+- `frontend/`を対象に開発サーバーを起動する
+- `http://127.0.0.1:4200/`をブラウザで開く
+
+VS Codeの設定はリポジトリルートの`.vscode/`に置く。
+
+## コマンドラインから起動する
+
+リポジトリルートで、次のコマンドを実行する。
+
+```text
+pnpm --dir frontend run start --host 127.0.0.1 --port 4200
+```
+
+`ng serve`をリポジトリルートで直接実行せず、`frontend/`を対象に実行する。
+
 ## 開発サーバーを起動する
 
 ```
