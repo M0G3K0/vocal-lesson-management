@@ -1,6 +1,7 @@
 ## なぜ・どのような変更を行ったのか
 <!-- 何を、なぜ変更したか・関連するURL・画像などを簡単に書きましょう！ -->
-https://github.com/M0G3K0/vocal-lesson-management/issues/XXX
+Closes #XXX
+<!-- マージ後もIssueをCloseしない場合だけ、「Closes」を削除して、Issue番号だけにしてください -->
 
 ## テストで確認したこと
 <!-- 実施したテスト・確認と結果を書きましょう！未実施の場合は理由を書きましょう！ -->
