@@ -21,6 +21,8 @@ backend/
 
 各モジュールの責務は、[バックエンドのアプリケーションアーキテクチャ](./BACKEND-ARCHITECTURE.md)に従う。
 
+ローカル設定と秘密情報の共通ルールは、[ローカル設定と秘密情報の扱い](./LOCAL-CONFIGURATION.md)に従う。
+
 ## 採用バージョン
 
 | 対象 | バージョン・条件 |
@@ -105,6 +107,8 @@ URL:      jdbc:postgresql://localhost:5432/vocal_lesson_management
 - `VLM_DB_USER`
 - `VLM_DB_PASSWORD`
 - `VLM_SERVER_PORT`
+
+環境変数の役割とGitでの扱いは、[ローカル設定と秘密情報の扱い](./LOCAL-CONFIGURATION.md)に従う。
 
 ### ビルドとテストを実行する
 

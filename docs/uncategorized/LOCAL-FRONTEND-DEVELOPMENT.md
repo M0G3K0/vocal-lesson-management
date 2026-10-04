@@ -25,6 +25,8 @@ frontend/
 
 アプリケーション内部の配置と責務は、[フロントエンドのアプリケーションアーキテクチャ](./FRONTEND-ARCHITECTURE.md)に従う。
 
+ローカル設定と秘密情報の共通ルールは、[ローカル設定と秘密情報の扱い](./LOCAL-CONFIGURATION.md)に従う。
+
 ## 採用バージョン
 
 | 対象 | バージョン・条件 |
@@ -149,3 +151,5 @@ frontend/dist/frontend/browser/assets/favicon.ico
 5. 必要に応じて`pnpm --dir frontend run start`で開発サーバーを起動する。
 
 この手順で、依存関係のインストール、ビルド、テスト、開発サーバーの起動を再現できる。
+
+現在、フロントエンドへ渡すローカル設定はない。設定が追加された場合は、[ローカル設定と秘密情報の扱い](./LOCAL-CONFIGURATION.md)を参照し、ブラウザへ公開してよい値だけをプロセスへ渡す。
