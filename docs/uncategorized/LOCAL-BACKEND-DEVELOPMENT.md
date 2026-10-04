@@ -85,15 +85,15 @@ URL:      jdbc:postgresql://localhost:5432/vocal_lesson_management
 Windows PowerShell:
 
 ```powershell
-backend\gradlew.bat build
-backend\gradlew.bat test
+backend\gradlew.bat --project-dir backend build
+backend\gradlew.bat --project-dir backend test
 ```
 
 macOS・Linux:
 
 ```sh
-./backend/gradlew build
-./backend/gradlew test
+./backend/gradlew --project-dir backend build
+./backend/gradlew --project-dir backend test
 ```
 
 ### Flywayのマイグレーションを実行する
@@ -103,13 +103,13 @@ Flywayは、Spring Bootアプリケーションの起動時に実行する。
 Windows PowerShell:
 
 ```powershell
-backend\gradlew.bat :web:bootRun
+backend\gradlew.bat --project-dir backend :web:bootRun
 ```
 
 macOS・Linux:
 
 ```sh
-./backend/gradlew :web:bootRun
+./backend/gradlew --project-dir backend :web:bootRun
 ```
 
 起動ログにアプリケーションが起動したことが表示されるまで待つ。確認後、`Ctrl+C`でアプリケーションを終了する。マイグレーションSQLは`backend/infra-orm/src/main/resources/db/migration/`に置く。
@@ -121,13 +121,13 @@ PostgreSQLが起動し、Flywayのマイグレーションが適用された状�
 Windows PowerShell:
 
 ```powershell
-backend\gradlew.bat :infra-orm:jooqCodegen
+backend\gradlew.bat --project-dir backend :infra-orm:jooqCodegen
 ```
 
 macOS・Linux:
 
 ```sh
-./backend/gradlew :infra-orm:jooqCodegen
+./backend/gradlew --project-dir backend :infra-orm:jooqCodegen
 ```
 
 生成コードは`backend/infra-orm/build/generated-src/jooq/main/`に出力される。このディレクトリはビルド生成物として扱い、Gitには追加しない。

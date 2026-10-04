@@ -6,6 +6,7 @@ dependencies {
     implementation("org.jooq:jooq")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
+    runtimeOnly("org.postgresql:postgresql")
     jooqCodegen("org.postgresql:postgresql")
 }
 
