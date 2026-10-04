@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: vocal_lesson_management
       POSTGRES_PASSWORD: local_development_only
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:

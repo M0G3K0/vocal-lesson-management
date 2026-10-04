@@ -1,5 +1,5 @@
 ---
-last_updated: "2026-10-04"
+last_updated: "2026-10-05"
 ---
 
 # バックエンドのローカル開発環境
@@ -47,6 +47,26 @@ backend/
 
 Gradleはリポジトリ内のGradle Wrapperを使う。グローバルにGradleをインストールする必要はない。
 
+Windows Git Bashを使う場合は、JDK 21とDocker CLIをGit Bashから参照できる状態にする。
+
+```bash
+java -version
+docker --version
+```
+
+`java`が見つからない場合は、JDK 21のインストール先を`JAVA_HOME`に設定し、`bin`をPATHへ追加する。`<JDK 21のインストール先>`は、実際の環境に合わせて置き換える。
+
+```bash
+export JAVA_HOME="<JDK 21のインストール先>"
+export PATH="$JAVA_HOME/bin:$PATH"
+```
+
+Docker Desktopの標準的なインストール先を使っていて、`docker`が見つからない場合は、次のようにDocker CLIの場所をPATHへ追加する。インストール先を変更している場合は、その場所に置き換える。
+
+```bash
+export PATH="/c/Program Files/Docker/Docker/resources/bin:$PATH"
+```
+
 ## 初回セットアップ
 
 リポジトリのルートで実行する。
@@ -62,6 +82,12 @@ docker compose -f backend/compose.yaml up -d
 macOS・Linux:
 
 ```sh
+docker compose -f backend/compose.yaml up -d
+```
+
+Windows Git Bash:
+
+```bash
 docker compose -f backend/compose.yaml up -d
 ```
 
@@ -96,6 +122,13 @@ macOS・Linux:
 ./backend/gradlew --project-dir backend test
 ```
 
+Windows Git Bash:
+
+```bash
+./backend/gradlew.bat --project-dir backend build
+./backend/gradlew.bat --project-dir backend test
+```
+
 ### Flywayのマイグレーションを実行する
 
 Flywayは、Spring Bootアプリケーションの起動時に実行する。
@@ -112,11 +145,19 @@ macOS・Linux:
 ./backend/gradlew --project-dir backend :web:bootRun
 ```
 
+Windows Git Bash:
+
+```bash
+./backend/gradlew.bat --project-dir backend :web:bootRun
+```
+
 起動ログにアプリケーションが起動したことが表示されるまで待つ。確認後、`Ctrl+C`でアプリケーションを終了する。マイグレーションSQLは`backend/infra-orm/src/main/resources/db/migration/`に置く。
 
 ### jOOQのコードを生成する
 
 PostgreSQLが起動し、Flywayのマイグレーションが適用された状態で実行する。
+
+現在は、生成コードを参照する業務コードがないため、必要なときにこのタスクを明示的に実行する。
 
 Windows PowerShell:
 
@@ -128,6 +169,12 @@ macOS・Linux:
 
 ```sh
 ./backend/gradlew --project-dir backend :infra-orm:jooqCodegen
+```
+
+Windows Git Bash:
+
+```bash
+./backend/gradlew.bat --project-dir backend :infra-orm:jooqCodegen
 ```
 
 生成コードは`backend/infra-orm/build/generated-src/jooq/main/`に出力される。このディレクトリはビルド生成物として扱い、Gitには追加しない。
@@ -143,6 +190,12 @@ docker compose -f backend/compose.yaml down
 macOS・Linux:
 
 ```sh
+docker compose -f backend/compose.yaml down
+```
+
+Windows Git Bash:
+
+```bash
 docker compose -f backend/compose.yaml down
 ```
 
