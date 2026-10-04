@@ -1,5 +1,5 @@
 ---
-last_updated: "2026-10-04"
+last_updated: "2026-10-05"
 ---
 
 # 開発フロー
@@ -119,7 +119,8 @@ last_updated: "2026-10-04"
 
 ### 作業を完了する
 
-- 人間は、マージ後にIssueをCloseします。
+- 人間は、マージ後に対象Issueが自動的にCloseされたことを確認します。
+- 自動Closeされていない場合は、Pull Request本文のIssue URLとGitHub Actionsの実行結果を確認したうえで、必要ならIssueを手動でCloseします。
 
 
 ## ブランチ命名規則
@@ -201,4 +202,15 @@ gh pr create --template .github/pull_request_template.md
 ```
 
 AIがPull Request本文を作成するときも、このファイルを読み、各項目に沿って内容を記載する。
+
+## Pull Requestマージ後のIssue自動Close
+
+`.github/workflows/close-issue-on-merged-pr.yml`は、Pull RequestがCloseされたときに実行される。
+
+- Pull Requestがマージされた場合だけ処理する。
+- Pull Request本文から、同じリポジトリのIssue URLを探す。
+- Issue URLが1件だけ見つかった場合、そのIssueをCloseする。
+- Pull RequestがマージされずにCloseされた場合は、IssueをCloseしない。
+- Issue URLがない場合や複数ある場合は、誤ったIssueをCloseせず警告して終了する。
+- IssueのDevelopment欄へのリンクは、この自動Closeの前提にしない。
 

@@ -1,0 +1,62 @@
+name: Close issue on merged pull request
+
+on:
+  pull_request_target:
+    types: [closed]
+
+permissions:
+  issues: write
+  pull-requests: read
+
+jobs:
+  close-issue:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close the issue referenced in the pull request body
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body ?? '';
+            const repositoryUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/issues/`;
+            const escapedRepositoryUrl = repositoryUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const issueUrlPattern = new RegExp(`${escapedRepositoryUrl}(\\d+)(?=[\\s/#)\"'>.,;:!?]|$)`, 'g');
+            const issueNumbers = [
+              ...new Set([...body.matchAll(issueUrlPattern)].map((match) => Number(match[1]))),
+            ];
+
+            if (issueNumbers.length === 0) {
+              core.warning('No issue URL for this repository was found in the pull request body.');
+              return;
+            }
+
+            if (issueNumbers.length > 1) {
+              core.warning('Multiple issue URLs were found in the pull request body. No issue was closed.');
+              return;
+            }
+
+            const issueNumber = issueNumbers[0];
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+            });
+
+            if (issue.pull_request) {
+              core.warning(`The referenced number #${issueNumber} is a pull request, not an issue.`);
+              return;
+            }
+
+            if (issue.state === 'closed') {
+              core.info(`Issue #${issueNumber} is already closed.`);
+              return;
+            }
+
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              state: 'closed',
+            });
+
+            core.info(`Closed issue #${issueNumber} after pull request #${context.payload.pull_request.number} was merged.`);
