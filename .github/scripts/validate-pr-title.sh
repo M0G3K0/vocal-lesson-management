@@ -31,7 +31,9 @@ case "$issue_number" in
     ''|*[!0-9]*) invalid_title ;;
 esac
 
-case "$description" in
-    *[![:space:]]*) ;;
-    *) invalid_title ;;
-esac
+# GNU grep's UTF-8 locale recognizes Unicode whitespace beyond ASCII spaces.
+if printf '%s' "$description" | LC_ALL=C.UTF-8 grep -q '[^[:space:]]'; then
+    :
+else
+    invalid_title
+fi
