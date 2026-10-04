@@ -6,8 +6,10 @@ import codecs
 from datetime import datetime
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
+import signal
 import shutil
 import subprocess
 import sys
@@ -40,7 +42,32 @@ def now():
 
 
 def digest(path):
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    value = hashlib.sha256()
+    with Path(path).open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            value.update(chunk)
+    return value.hexdigest()
+
+
+def read_preview(path, encoding, limit=4000):
+    decoder = codecs.getincrementaldecoder(encoding)(errors="replace")
+    chunks = []
+    character_count = 0
+    with Path(path).open("rb") as stream:
+        while True:
+            raw = stream.read(4096)
+            finished = not raw
+            decoded = decoder.decode(raw, final=finished)
+            if decoded:
+                remaining = limit + 1 - character_count
+                if remaining > 0:
+                    excerpt = decoded[:remaining]
+                    chunks.append(excerpt)
+                    character_count += len(excerpt)
+                if character_count > limit:
+                    return "".join(chunks)[:limit], True
+            if finished:
+                return "".join(chunks), False
 
 
 def read_json(path):
@@ -133,6 +160,57 @@ def file_info(path):
     return {"name": path.name, "sha256": digest(path)}
 
 
+def terminate_process_tree(process):
+    if os.name == "nt":
+        # Ctrl-Break reaches all processes in the isolated group; taskkill is the hard-kill fallback.
+        try:
+            process.send_signal(signal.CTRL_BREAK_EVENT)
+        except OSError:
+            pass
+        try:
+            process.wait(timeout=0.5)
+        except subprocess.TimeoutExpired:
+            outcome = subprocess.run(
+                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+            )
+            if outcome.returncode != 0:
+                if process.poll() is None:
+                    process.kill()
+                    process.wait()
+                raise OSError(f"taskkill failed to terminate process tree {process.pid}")
+        return
+
+    try:
+        os.killpg(process.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        pass
+    except OSError:
+        if process.poll() is None:
+            process.kill()
+            process.wait()
+        raise
+
+    try:
+        process.wait(timeout=0.5)
+    except subprocess.TimeoutExpired:
+        pass
+
+    # The group leader may exit on SIGTERM while a child remains alive.
+    try:
+        os.killpg(process.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    except OSError:
+        if process.poll() is None:
+            process.kill()
+            process.wait()
+        raise
+    process.wait()
+
+
 def capture(run, case_id, cwd, command, timeout=60, encoding="utf-8"):
     run, plan, _ = load_run(run)
     index = current_case(run, plan, case_id)
@@ -144,13 +222,22 @@ def capture(run, case_id, cwd, command, timeout=60, encoding="utf-8"):
     metadata = {"kind": "command", "case_id": case_id, "command": command, "cwd": str(cwd), "encoding": encoding, "started_at": now()}
     # 終了後にAIが再構成せず、プロセスから原本へ直接書く。大きな出力もメモリに蓄えない。
     with (folder / "stdout.txt").open("xb") as stdout, (folder / "stderr.txt").open("xb") as stderr:
+        process_options = {}
+        if os.name == "nt":
+            process_options["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+        else:
+            process_options["start_new_session"] = True
         try:
-            outcome = subprocess.run(command, cwd=cwd, stdout=stdout, stderr=stderr, timeout=timeout, check=False)
-            metadata.update(returncode=outcome.returncode, error="")
-        except subprocess.TimeoutExpired:
-            metadata.update(returncode=None, error=f"{timeout}秒でタイムアウトしました")
+            process = subprocess.Popen(command, cwd=cwd, stdout=stdout, stderr=stderr, **process_options)
         except OSError as error:
             metadata.update(returncode=None, error=str(error))
+        else:
+            try:
+                returncode = process.wait(timeout=timeout)
+                metadata.update(returncode=returncode, error="")
+            except subprocess.TimeoutExpired:
+                terminate_process_tree(process)
+                metadata.update(returncode=None, error=f"{timeout}秒でタイムアウトしました")
     metadata["finished_at"] = now()
     metadata["files"] = [file_info(folder / name) for name in ("stdout.txt", "stderr.txt")]
     write_json(folder / "metadata.json", metadata)
@@ -165,7 +252,10 @@ def attach(run, case_id, source, label, encoding="utf-8"):
         raise ValueError("証跡の原本ファイルと取得元の説明が必要です")
     codecs.lookup(encoding)
     folder = new_evidence(run, index)
-    target = folder / ("artifact" + source.suffix)
+    suffix = source.suffix.lower()
+    if not re.fullmatch(r"\.[a-z0-9]{1,10}", suffix):
+        suffix = ".bin"
+    target = folder / ("artifact" + suffix)
     shutil.copyfile(source, target)
     write_json(folder / "metadata.json", {"kind": "artifact", "case_id": case_id, "label": label, "encoding": encoding, "captured_at": now(), "files": [file_info(target)]})
     return {"evidence": str(folder / "metadata.json")}
@@ -309,9 +399,9 @@ def render(run):
                 if original.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp"):
                     lines += [f"![証跡]({relative})", ""]
                 elif original.suffix.lower() in (".txt", ".json", ".html", ".csv", ".log"):
-                    text = original.read_bytes().decode(evidence.get("encoding", "utf-8"), errors="replace")
-                    lines += [code_block(text[:4000] or "（出力なし）"), ""]
-                    if len(text) > 4000:
+                    text, truncated = read_preview(original, evidence.get("encoding", "utf-8"))
+                    lines += [code_block(text or "（出力なし）"), ""]
+                    if truncated:
                         lines += ["表示は先頭4000文字です。全文は原本リンクから確認してください。", ""]
     report = run / "report.md"
     report.write_text("\n".join(lines), encoding="utf-8", newline="\n")

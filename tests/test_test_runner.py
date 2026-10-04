@@ -9,6 +9,7 @@ import tempfile
 import threading
 import time
 import unittest
+from unittest.mock import patch
 
 
 SCRIPT = Path(__file__).resolve().parents[1] / ".agents/skills/run-behavior-tests/scripts/report.py"
@@ -89,6 +90,57 @@ class 動作確認レポートのテスト(unittest.TestCase):
         text = Path(report.render(self.run)["report"]).read_text(encoding="utf-8")
         self.assertIn("開始", text)
         self.assertIn("判定不能", text)
+
+    def test_タイムアウト時に子プロセスも終了し証跡を確定できる(self):
+        self.initialize()
+        marker = self.root / "child-finished.txt"
+        child_code = (
+            "from pathlib import Path; import time; "
+            f"time.sleep(1.0); Path({str(marker)!r}).write_text('finished', encoding='utf-8'); "
+            "print('child-finished', flush=True)"
+        )
+        parent_code = (
+            "import subprocess,sys,time; "
+            f"subprocess.Popen([sys.executable, '-c', {child_code!r}]); "
+            "print('parent-started', flush=True); time.sleep(10)"
+        )
+        evidence = self.capture(code=parent_code, timeout=0.3)
+        self.assertIsNone(evidence["returncode"])
+        self.record(status="UNVERIFIED", reason="親プロセスがタイムアウトした")
+
+        time.sleep(1.2)
+        self.assertFalse(marker.exists(), "タイムアウト後も子プロセスが処理を続けている")
+        report.render(self.run)
+        stdout = Path(evidence["evidence"]).with_name("stdout.txt")
+        self.assertNotIn(b"child-finished", stdout.read_bytes())
+
+    def test_大きな証跡を一括読み込みせず先頭だけ報告する(self):
+        self.initialize()
+        source = self.root / "large.txt"
+        source.write_text("あ" * 200000, encoding="utf-8")
+        self.capture(code="print('確認')")
+        report.attach(self.run, "1", source, "大容量ログ")
+        self.record()
+
+        with patch.object(Path, "read_bytes", side_effect=AssertionError("証跡を一括読み込みした")):
+            result = report.render(self.run)
+
+        text = Path(result["report"]).read_text(encoding="utf-8")
+        self.assertIn("あ" * 4000, text)
+        self.assertIn("表示は先頭4000文字です", text)
+
+    def test_添付ファイル名の危険な拡張子を報告リンクに使わない(self):
+        self.initialize()
+        source = self.root / "source.md]# [injected](example)"
+        source.write_bytes(b"attachment contents")
+        evidence = report.attach(self.run, "1", source, "取得したファイル")
+        self.record()
+
+        artifact = Path(evidence["evidence"]).with_name("artifact.bin")
+        self.assertEqual(artifact.read_bytes(), b"attachment contents")
+        text = Path(report.render(self.run)["report"]).read_text(encoding="utf-8")
+        self.assertIn("[artifact.bin]", text)
+        self.assertNotIn("[injected]", text)
 
     def test_起動失敗を記録して未実施の理由を報告する(self):
         self.initialize()
