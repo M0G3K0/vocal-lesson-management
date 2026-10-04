@@ -20,7 +20,7 @@ last_updated: "2026-10-04"
 具体的な業務モデル、API、DBテーブルは各機能の要求・仕様に合わせて設計する。
 
 使用バージョンとローカル環境の構築手順は、
-[GitHub Issue #45](https://github.com/M0G3K0/vocal-lesson-management/issues/45)で具体化する。
+[バックエンドのローカル開発環境](./LOCAL-BACKEND-DEVELOPMENT.md)に記載する。
 
 ## 採用技術
 
