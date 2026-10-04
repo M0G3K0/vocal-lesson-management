@@ -294,9 +294,12 @@ sequenceDiagram
 ```text
 frontend/src/app/
 ├── models/
-│   └── reservations/
-│       ├── reservation-api-model.ts
-│       └── reservation-repository.ts
+│   ├── reservations/
+│   │   ├── reservation-api-model.ts
+│   │   └── reservation-repository.ts
+│   └── calendar-events/
+│       ├── calendar-event-api-model.ts
+│       └── calendar-event-repository.ts
 └── pages/
     └── reservations/
         ├── reservation-list.component.ts
@@ -309,15 +312,22 @@ frontend/src/app/
 ### models/reservations
 
 - APIのRequest・Responseモデルを置く。
-- SHEER予約一覧APIやCalendar登録APIを呼び出すRepositoryを置く。
+- SHEER予約一覧APIを呼び出すRepositoryを置く。
 - HTTP通信の形式をAPIモデルへ変換する。
 - 画面の選択状態や入力途中の値は置かない。
+
+### models/calendar-events
+
+- Calendarイベント登録APIのRequest・Responseモデルを置く。
+- Google Calendarへの登録を行うRepositoryを置く。
+- 予約APIのモデルや予約画面固有の状態は置かない。
 
 ### pages/reservations
 
 - 予約一覧Componentを置く。
 - 選択中の予約、表示用の日時、登録ボタンの状態などを画面側のModelで扱う。
 - APIモデルから画面側のModelへの変換を行う。
+- 予約RepositoryとCalendarイベントRepositoryを組み合わせて利用する。
 - Calendar登録操作に必要なFormやPage Serviceを置く。
 
 ### shared
