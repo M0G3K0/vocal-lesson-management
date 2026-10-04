@@ -22,7 +22,7 @@ last_updated: "2026-10-04"
 個別画面やAPIの仕様を確定する文書ではない。
 
 使用バージョンとローカル環境の構築手順は、
-[GitHub Issue #45](https://github.com/M0G3K0/vocal-lesson-management/issues/45)で具体化する。
+[フロントエンドのローカル開発環境](./LOCAL-FRONTEND-DEVELOPMENT.md)に記載する。
 
 ## 採用技術
 
