@@ -8,6 +8,10 @@ last_updated: "2026-10-03"
 
 Pull Request本文を作成するときは、[開発フロー](docs/uncategorized/DEVELOPMENT-FLOW.md)の「Pull Requestテンプレートの利用」に従う。
 
+## 合意済み動作確認の実行
+
+ユーザーが合意済みの動作確認項目を実行するよう指示したときは、[run-behavior-tests Skill](.agents/skills/run-behavior-tests/SKILL.md) を使う。確認項目の提案や通常の実装検証を、このサブエージェントの自動起動理由にしない。
+
 ## 設計・仕様案のレビュー
 
 作成担当は、具体的な設計・仕様案をユーザーに提案する直前に、[specs-review Skill](.agents/skills/specs-review/SKILL.md) を使う。通常の相談・調査・進捗報告・文面だけの修正では起動しない。レビュー担当は、この指示から別のレビュー担当を起動しない。
