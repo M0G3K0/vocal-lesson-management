@@ -18,6 +18,9 @@ local.properties
 .env.*
 !.env.example
 
+# 動作確認の結果・証跡（実行ごとに保存し、Gitには含めない）
+.local/test-runs/
+
 # Credentials and session data
 credentials*.json
 client_secret*.json
