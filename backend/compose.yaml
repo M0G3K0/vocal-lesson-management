@@ -3,14 +3,14 @@ services:
     image: postgres:17-alpine
     environment:
       POSTGRES_DB: vocal_lesson_management
-      POSTGRES_USER: vocal_lesson_management
-      POSTGRES_PASSWORD: local_development_only
+      POSTGRES_USER: ${VLM_DB_USER:-vocal_lesson_management}
+      POSTGRES_PASSWORD: ${VLM_DB_PASSWORD:-local_development_only}
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vocal_lesson_management -d vocal_lesson_management"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-vocal_lesson_management} -d vocal_lesson_management"]
       interval: 5s
       timeout: 5s
       retries: 10
