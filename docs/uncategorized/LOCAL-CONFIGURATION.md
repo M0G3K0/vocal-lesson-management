@@ -1,5 +1,5 @@
 ---
-last_updated: "2026-10-05"
+last_updated: "2026-10-08"
 ---
 
 # ローカル設定と秘密情報の扱い
@@ -39,7 +39,34 @@ last_updated: "2026-10-05"
 docker compose --env-file .env -f backend/compose.yaml up -d
 ```
 
-`.env`がない場合は、バックエンドのローカル開発手順に記載された安全な初期値が使われる。
+`.env`を使わない場合は、`--env-file .env`を省略する。環境変数も設定していなければ、バックエンドのローカル開発手順に記載された安全な初期値が使われる。
+
+### 既存DBのユーザー名・パスワードを変更する場合
+
+PostgreSQLのユーザー名・パスワードの初期設定は、データディレクトリが空の場合にだけ適用される。
+既存の`postgres-data` Volumeがある状態で`VLM_DB_USER`や`VLM_DB_PASSWORD`を変更しても、DB内の認証情報は更新されない。
+
+ローカルDBのデータを削除してよい場合は、次の順序で再作成する。
+
+1. Spring Bootを停止する。
+2. 次のコマンドでコンテナとVolumeを削除する。**ローカルDBの全データが削除される。**
+
+   ```bash
+   docker compose --env-file .env -f backend/compose.yaml down -v
+   ```
+
+3. `.env`の`VLM_DB_USER`と`VLM_DB_PASSWORD`を変更する。
+4. 新しい認証情報でPostgreSQLを初期化する。
+
+   ```bash
+   docker compose --env-file .env -f backend/compose.yaml up -d
+   ```
+
+5. Spring Bootにも同じユーザー名・パスワードを環境変数として渡して起動する。`.env`を変更するだけではSpring Bootへは渡らない。
+
+データを保持する必要がある場合は、この再作成手順を実行しない。DB内のユーザー・パスワードの変更と、接続元の設定変更を別途行う。
+
+[PostgreSQL公式Dockerイメージの環境変数の説明](https://github.com/docker-library/docs/blob/master/postgres/content.md#environment-variables)
 
 ### Spring Bootへ渡す場合
 
@@ -48,17 +75,18 @@ Spring Bootは起動プロセスの環境変数を読む。シェルまたはIDE
 Git Bashの例：
 
 ```bash
-VLM_DB_PASSWORD="local-only-value" ./backend/gradlew.bat --project-dir backend :web:bootRun
+VLM_SERVER_PORT=8081 ./backend/gradlew.bat --project-dir backend :web:bootRun
 ```
 
 PowerShellの例：
 
 ```powershell
-$env:VLM_DB_PASSWORD = "local-only-value"
+$env:VLM_SERVER_PORT = "8081"
 backend\gradlew.bat --project-dir backend :web:bootRun
+Remove-Item Env:VLM_SERVER_PORT
 ```
 
-この例の値は説明用であり、実際のパスワードや認証情報を文書へ記載しない。
+この例ではDBの認証情報を変更せず、待ち受けポートだけを8081へ変更する。PowerShellではSpring Bootを停止した後、最後のコマンドで環境変数を解除する。
 
 ## 設定例
 
